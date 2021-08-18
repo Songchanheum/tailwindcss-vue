@@ -1,301 +1,98 @@
+<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-  <v-app class="overflow-hidden">
-    <v-system-bar color="purple darken-2" lights-out></v-system-bar>
-    <v-app-bar
-      app
-      dark
-      shrink-on-scroll
-      dense 
-    >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer; mini = false" v-show="!drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>{{siteTitle}} {{$t('message')}}</v-toolbar-title>
-      <v-spacer></v-spacer>
+  <div class='app'>
+  <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+      <div class="relative flex items-center justify-between h-16">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <!-- Mobile menu button-->
+          <DisclosureButton class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+            <span class="sr-only">Open main menu</span>
+            <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
+            <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
+          </DisclosureButton>
+        </div>
+        <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex-shrink-0 flex items-center">
+            <img class="block lg:hidden h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg" alt="Workflow" />
+            <img class="hidden lg:block h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg" alt="Workflow" />
+          </div>
+          <div class="hidden sm:block sm:ml-6">
+            <div class="flex space-x-4">
+              <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium']" :aria-current="item.current ? 'page' : undefined">{{ item.name }}</a>
+            </div>
+          </div>
+        </div>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+          <button type="button" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+            <span class="sr-only">View notifications</span>
+            <BellIcon class="h-6 w-6" aria-hidden="true" />
+          </button>
 
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
+          <!-- Profile dropdown -->
+          <Menu as="div" class="ml-3 relative">
+            <div>
+              <MenuButton class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                <span class="sr-only">Open user menu</span>
+                <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+              </MenuButton>
+            </div>
+            <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+              <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <MenuItem v-slot="{ active }">
+                  <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Your Profile</a>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Settings</a>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Sign out</a>
+                </MenuItem>
+              </MenuItems>
+            </transition>
+          </Menu>
+        </div>
+      </div>
+    </div>
 
-      <v-btn icon>
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-      <v-menu bottom left>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-          <v-list>
-            <v-list-item  @click="changeLocale">
-              <v-list-item-title>{{$i18n.locale === 'en' ? '한글' : 'English'}}</v-list-item-title>
-            </v-list-item>
-            <template v-if="!$store.state.token">
-              <v-list-item  @click="$router.push('/sign')">
-                <v-list-item-title>로그인</v-list-item-title>
-              </v-list-item>
-              <v-list-item  @click="$router.push('/create')">
-                <v-list-item-title>회원가입</v-list-item-title>
-              </v-list-item>
-            </template>
-            <template v-else>
-              <v-list-item  @click="$router.push('/user')">
-                <v-list-item-title>사용자 정보</v-list-item-title>
-              </v-list-item>
-              <v-list-item  @click="signOut">
-                <v-list-item-title>로그아웃</v-list-item-title>
-              </v-list-item>
-            </template>
-          </v-list>
-        </v-menu>
-    </v-app-bar>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant.sync="mini"
-      enable-resize-watcher
-      fixed
-      app
-      dark
-    >
-    <v-list class="pa-0">
-      <v-list-item class="px-2">
-        <v-list-item-avatar>
-          <img :src="$store.state.user.img">
-        </v-list-item-avatar>
-        <v-list-item-title>
-        </v-list-item-title>
-        <v-list-item-action :right="true">
-          <v-btn icon @click.native.stop="mini = !mini">
-            <v-icon>fas fa-angle-left</v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
-      <v-list-item link v-if="!mini" @click="$router.push('/user')">
-        <v-list-item-content>
-          <v-list-item-title class="title">Song Chanheum</v-list-item-title>
-          <v-list-item-subtitle>bsk9212@gmail.com</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-    <v-divider></v-divider>
-      <v-list :shaped="true"
-        dense
-        link
-      >
-        <v-list-group
-          v-for="(item, i) in items"
-          v-model="item.act"
-          :prepend-icon="item.icon"
-          :key="i"
-          no-action
-          active-class="purple--text purple darken-2 text--accent-4"
-        >
-          <v-list-item slot="activator">
-            <!-- <v-list-item-title>{{item.title}}</v-list-item-title> -->
-            <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item
-            v-for="subItem in item.subItems"
-            :key="subItem.title"
-            :to="subItem.to"
-            active-class="white--text"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ subItem.title }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
-      </v-list>
-    </v-navigation-drawer>
-
-    <v-content>
-      <router-view/>
-    </v-content>
-    <v-footer app>
-      <v-spacer></v-spacer>
-      <span>{{siteCopyright}} &nbsp;</span>
-    </v-footer>
-    <v-snackbar
-      v-model="$store.state.sb.act"
-      :color="$store.state.sb.color"
-    >
-      {{ $store.state.sb.msg }}
-      <v-btn
-        flat
-        @click="$store.commit('pop', { act: false })"
-      >
-        닫기
-      </v-btn>
-    </v-snackbar>
-  </v-app>
+    <DisclosurePanel class="sm:hidden">
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        <a v-for="item in navigation" :key="item.name" :href="item.href" :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']" :aria-current="item.current ? 'page' : undefined">{{ item.name }}</a>
+      </div>
+    </DisclosurePanel>
+  </Disclosure>
+   </div>
 </template>
 
 <script>
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
+
+const navigation = [
+  { name: 'Dashboard', href: '#', current: true },
+  { name: 'Team', href: '#', current: false },
+  { name: 'Projects', href: '#', current: false },
+  { name: 'Calendar', href: '#', current: false },
+]
+
 export default {
-  name: 'App',
-  data () {
+  name: 'app',
+  components: {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+    BellIcon,
+    MenuIcon,
+    XIcon,
+  },
+  setup() {
     return {
-      drawer: null,
-      mini: false,
-      siteTitle: '기다리는중',
-      siteCopyright: '기다리는중',
-      siteDark: true,
-      items: [
-        {
-          icon: 'fas fa-columns',
-          title: 'Dashboard', // '현황',
-          act: true,
-          subItems: [
-            {
-              title: 'Today', // '오늘',
-              to: {
-                path: '/'
-              }
-            }
-          ]
-        },
-        {
-          icon: 'fas fa-comment-alt',
-          title: 'Chat',
-          subItems: [
-            {
-              icon: 'home',
-              title: '아무나',
-              to: {
-                path: '/chat/login'
-              }
-            }
-          ]
-        },
-        {
-          icon: 'fas fa-layer-group',
-          title: 'Level Test',
-          subItems: [
-            {
-              title: '손님용 페이지',
-              to: {
-                path: '/test/lv3'
-              }
-            },
-            {
-              title: '일반유저용 페이지',
-              to: {
-                path: '/test/lv2'
-              }
-            },
-            {
-              title: '슈퍼유저용 페이지',
-              to: {
-                path: '/test/lv1'
-              }
-            },
-            {
-              title: '관리자용 페이지',
-              to: {
-                path: '/test/lv0'
-              }
-            }
-          ]
-        },
-        {
-          icon: 'fas fa-tools',
-          title: 'Setting',
-          subItems: [
-            {
-              title: '사용자관리',
-              to: {
-                path: '/manage/users'
-              }
-            },
-            {
-              title: '페이지관리',
-              to: {
-                path: '/manage/pages'
-              }
-            },
-            {
-              title: '사이트관리',
-              to: {
-                path: '/manage/sites'
-              }
-            },
-            {
-              title: '게시판관리',
-              to: {
-                path: '/manage/boards'
-              }
-            }
-          ]
-        }
-        // ,
-        // {
-        //   icon: 'home',
-        //   title: '홈aaa',
-        //   to: {
-        //     path: '/home'
-        //   }
-        // },
-        // {
-        //   icon: 'face',
-        //   title: 'header',
-        //   to: {
-        //     path: '/header'
-        //   }
-        // }
-      ],
-      title: this.$apiRootPath
+      navigation,
     }
   },
-  mounted () {
-    this.getSite()
-    this.getBoards()
-  },
-  methods: {
-    signOut () {
-      // localStorage.removeItem('token')
-      this.$store.commit('delToken')
-      this.$router.push('/')
-    },
-    getSite () {
-      this.siteTitle = "반응형 웹 페이지 제작 테스트"
-      this.siteCopyright = " test copyright footer"
-      // this.$axios.get('/site')
-      //   .then(r => {
-      //     this.siteTitle = r.data.d.title
-      //     this.siteCopyright = r.data.d.copyright
-      //     this.siteDark = r.data.d.dark
-      //   })
-      //   .catch(e => {
-      //     if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
-      //   })
-    },
-    getBoards () {
-      // this.$axios.get('/board/list')
-      //   .then(({ data }) => {
-      //     data.ds.forEach(v => {
-      //       this.items[1].subItems.push({
-      //         title: v.title,
-      //         to: {
-      //           path: `/board/${v.name}`
-      //         }
-      //       })
-      //     })
-      //   })
-      //   .catch(e => {
-      //     if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
-      //   })
-    },
-    changeLocale () {
-      if (this.$i18n.locale === 'en') this.$i18n.locale = 'ko'
-      else this.$i18n.locale = 'en'
-      this.items[0].title = this.$t('dashboard')
-      this.items[0].subItems[0].title = this.$t('today')
-    }
-  }
 }
 </script>
-<style>
-/* .v-datatable__actions__range-controls {
-  display: none;
-} */
-</style>

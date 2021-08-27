@@ -6,7 +6,7 @@ import router  from './router/index';
 import store  from './store/index';
 import i18n from './i18n'
 import './registerServiceWorker'
-import './plugins/socketPlugin';
+// import './plugins/socketPlugin';
 import './index.css';
 
 Vue.use(Directives);
